@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Engineering Quiz Platform</title>
+<style>
+body{font-family:Arial;background:#6a5acd;margin:0}
+.box{width:900px;margin:30px auto;background:white;padding:20px;border-radius:10px}
+select,button{width:100%;padding:10px;margin:8px 0}
+.option{margin:5px}
+.correct{color:green;font-weight:bold}
+.wrong{color:red;font-weight:bold}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>Smart Engineering Quiz Platform</h2>
+
+<div id="start">
+<select id="subject">
+<option value="">Select Subject</option>
+<option value="C">C</option>
+<option value="CPP">C++</option>
+<option value="Java">Java</option>
+<option value="Python">Python</option>
+<option value="OOPS">OOPS</option>
+<option value="DBMS">DBMS</option>
+<option value="OS">OS</option>
+<option value="CN">CN</option>
+</select>
+
+<select id="level">
+<option value="">Select Level</option>
+<option value="beginner">Beginner</option>
+<option value="intermediate">Intermediate</option>
+<option value="advanced">Advanced</option>
+</select>
+
+<button onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div id="quiz" style="display:none">
+<h3 id="q"></h3>
+<div id="ops"></div>
+<button onclick="next()">Next</button>
+</div>
+
+<div id="result" style="display:none">
+<h2 id="score"></h2>
+<p id="rec"></p>
+</div>
+</div>
+
+<script>
+const bank = {
+C:{ beginner:[
+{q:"Who developed C language?",o:["Dennis Ritchie","Bjarne","Guido","James"],a:0},
+{q:"C is a ____ language",o:["High","Low","Middle","None"],a:2},
+{q:"Which symbol ends statement?",o:[";",";",":","#"],a:0},
+{q:"Which header for printf?",o:["stdio.h","conio.h","math.h","string.h"],a:0},
+{q:"Which keyword returns value?",o:["return","break","goto","exit"],a:0},
+{q:"Which loop checks condition first?",o:["do-while","for","while","all"],a:2},
+{q:"Size of char?",o:["1 byte","2 bytes","4 bytes","8 bytes"],a:0},
+{q:"Which is valid identifier?",o:["1num","_num","num-1","num 1"],a:1},
+{q:"Which operator gives address?",o:["*","&","%","#"],a:1},
+{q:"Array index starts from?",o:["0","1","-1","any"],a:0}
+]},
+CPP:{ beginner:[
+{q:"C++ supports?",o:["POP","OOP","None","Binary"],a:1},
+{q:"Scope resolution operator?",o:["::",".","->",":"],a:0},
+{q:"Who developed C++?",o:["Bjarne","Dennis","Guido","James"],a:0},
+{q:"Destructor symbol?",o:["~","!","#","$"],a:0},
+{q:"File extension?",o:[".c",".cpp",".java",".py"],a:1},
+{q:"Which is OOP feature?",o:["Inheritance","Loop","Array","Pointer"],a:0},
+{q:"Which creates object?",o:["new","malloc","alloc","create"],a:0},
+{q:"Which access specifier?",o:["public","open","shared","free"],a:0},
+{q:"Which supports polymorphism?",o:["Virtual fn","Macro","Struct","Enum"],a:0},
+{q:"Operator overloading supports?",o:["++","--","All","None"],a:2}
+]},
+Java:{ beginner:[
+{q:"Java is?",o:["Platform dependent","Platform independent","OS","Compiler"],a:1},
+{q:"JVM full form?",o:["Java VM","Virtual","Java Virtual Machine","None"],a:2},
+{q:"Main method return type?",o:["void","int","float","String"],a:0},
+{q:"Which creates object?",o:["new","malloc","alloc","create"],a:0},
+{q:"Which is constructor?",o:["Same class name","Any name","Static","Void"],a:0},
+{q:"Which package auto imported?",o:["java.util","java.lang","java.io","java.sql"],a:1},
+{q:"Which handles exception?",o:["try-catch","if","loop","throw"],a:0},
+{q:"Which is not OOP?",o:["Java","C++","Python","C"],a:3},
+{q:"Byte size?",o:["1","2","4","8"],a:0},
+{q:"Which supports inheritance?",o:["extends","implements","using","inherit"],a:0}
+]},
+Python:{ beginner:[
+{q:"Python is?",o:["Compiled","Interpreted","Binary","Machine"],a:1},
+{q:"Comment symbol?",o:["//","#","/*","--"],a:1},
+{q:"Which immutable?",o:["List","Tuple","Set","Dict"],a:1},
+{q:"File extension?",o:[".py",".java",".c",".cpp"],a:0},
+{q:"Print function?",o:["print","echo","cout","display"],a:0},
+{q:"Dictionary symbol?",o:["[]","()","{}","<>"],a:2},
+{q:"Which keyword function?",o:["def","fun","lambda","method"],a:0},
+{q:"Dynamic typing?",o:["Yes","No","Static","None"],a:0},
+{q:"Which slicing symbol?",o:[":",";","|","/"],a:0},
+{q:"Loop keyword?",o:["for","iterate","repeat","foreach"],a:0}
+]},
+OOPS:{ beginner:[
+{q:"OOPS full form?",o:["Object Oriented Programming System","None","Operating","Open"],a:0},
+{q:"Which hides data?",o:["Encapsulation","Inheritance","Abstraction","Polymorphism"],a:0},
+{q:"Many forms?",o:["Polymorphism","Encapsulation","Abstraction","Inheritance"],a:0},
+{q:"Runtime binding?",o:["Dynamic","Static","Early","None"],a:0},
+{q:"Base class?",o:["Parent","Child","Derived","Final"],a:0},
+{q:"Which increases reuse?",o:["Inheritance","Loop","Array","Variable"],a:0},
+{q:"Interface supports?",o:["Multiple inheritance","Single","None","All"],a:0},
+{q:"Abstract keyword?",o:["abstract","virtual","static","final"],a:0},
+{q:"Object is?",o:["Instance","Class","Function","Variable"],a:0},
+{q:"Which not OOP feature?",o:["Loop","Inheritance","Encapsulation","Polymorphism"],a:0}
+]},
+DBMS:{ beginner:[
+{q:"DBMS full form?",o:["Database Management System","File System","Backup","None"],a:0},
+{q:"Primary key?",o:["Unique","Duplicate","Null","Any"],a:0},
+{q:"SQL is?",o:["Language","OS","DB","Compiler"],a:0},
+{q:"Removes redundancy?",o:["Normalization","Indexing","View","Trigger"],a:0},
+{q:"Foreign key connects?",o:["Tables","Rows","Columns","DB"],a:0},
+{q:"Which is DML?",o:["SELECT","CREATE","DROP","ALTER"],a:0},
+{q:"Which is RDBMS?",o:["MySQL","MongoDB","Redis","Neo4j"],a:0},
+{q:"ACID is?",o:["Property","Key","Index","Language"],a:0},
+{q:"Metadata stored in?",o:["Data dictionary","Index","View","Table"],a:0},
+{q:"Which joins tables?",o:["JOIN","MERGE","LINK","UNION"],a:0}
+]},
+OS:{ beginner:[
+{q:"OS full form?",o:["Operating System","Open Source","Operator","None"],a:0},
+{q:"CPU managed by?",o:["OS","Compiler","Program","User"],a:0},
+{q:"Scheduling algo?",o:["FCFS","FIFO","LIFO","All"],a:3},
+{q:"Deadlock means?",o:["Infinite wait","Crash","Error","Exit"],a:0},
+{q:"Kernel is?",o:["Core","Shell","UI","Driver"],a:0},
+{q:"Volatile memory?",o:["RAM","ROM","Disk","Cache"],a:0},
+{q:"Multitasking?",o:["Multiple tasks","Single task","Batch","None"],a:0},
+{q:"System call?",o:["fork","printf","scanf","cin"],a:0},
+{q:"Open source OS?",o:["Linux","Windows","Mac","DOS"],a:0},
+{q:"Semaphore is?",o:["Sync tool","Loop","Compiler","None"],a:0}
+]},
+CN:{ beginner:[
+{q:"CN full form?",o:["Computer Network","Control Network","Core","None"],a:0},
+{q:"Protocol?",o:["HTTP","HTML","CSS","JS"],a:0},
+{q:"OSI layers?",o:["7","5","4","3"],a:0},
+{q:"Routing layer?",o:["Network","Transport","Session","Data link"],a:0},
+{q:"IP size?",o:["32-bit","64-bit","16-bit","128-bit"],a:0},
+{q:"TCP is?",o:["Reliable","Unreliable","Fast","None"],a:0},
+{q:"UDP is?",o:["Unreliable","Reliable","Slow","None"],a:0},
+{q:"Connects networks?",o:["Router","Switch","Hub","Bridge"],a:0},
+{q:"Cheapest topology?",o:["Bus","Star","Ring","Mesh"],a:0},
+{q:"HTTP port?",o:["80","21","25","110"],a:0}
+]}
+};
+
+let qs=[], i=0, marks=0;
+
+function startQuiz(){
+let s=subject.value;
+if(!s){alert("Select subject");return;}
+qs=[...bank[s].beginner].sort(()=>0.5-Math.random()).slice(0,10);
+i=0; marks=0;
+start.style.display="none";
+quiz.style.display="block";
+load();
+}
+
+function load(){
+let x=qs[i];
+q.innerText=`Q${i+1}. ${x.q}`;
+ops.innerHTML=x.o.map((o,j)=>`<div class="option">
+<input type="radio" name="op" value="${j}"> ${o}
+</div>`).join("");
+}
+
+function next(){
+let sel=document.querySelector("input[name='op']:checked");
+if(!sel){alert("Select option");return;}
+let ans=qs[i].a;
+
+document.querySelectorAll(".option").forEach((d,j)=>{
+if(j===ans)d.classList.add("correct");
+if(sel.value!=ans && j==sel.value)d.classList.add("wrong");
+});
+
+if(+sel.value===ans)marks++;
+
+setTimeout(()=>{
+i++;
+i<qs.length?load():end();
+},1200);
+}
+
+function end(){
+quiz.style.display="none";
+result.style.display="block";
+document.getElementById("score").innerText=`Final Score: ${marks}/10`;
+rec.innerHTML=marks<6?
+"Practice more from <b>GeeksforGeeks</b> and <b>JavaTpoint</b>.":
+"Excellent! Try intermediate and advanced levels.";
+}
+</script>
+</body>
+</html>
